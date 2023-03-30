@@ -3,8 +3,7 @@
 
 import "./setup-quickjs";
 
-import { fromCharCodeTask } from "./impl-fromcharcode";
-import { fromCharCodeApplyTasks } from "./impl-fromcharcode-apply";
+import { fromCharCodeTask, fromCharCodeApplyTasks } from "./impl-fromcharcode";
 
 import { runBench } from "./common";
 

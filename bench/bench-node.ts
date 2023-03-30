@@ -3,11 +3,9 @@
 
 import { runBench } from "./common";
 
-import { fromCharCodeTask } from "./impl-fromcharcode";
-import { fromCharCodeApplyTasks } from "./impl-fromcharcode-apply";
+import { fromCharCodeTask, fromCharCodeApplyTasks } from "./impl-fromcharcode";
 import { textDecoderTask } from "./impl-textdecoder";
-import { stringDecoderTask } from "./impl-stringdecoder";
-import { bufferTask } from "./impl-buffer";
+import { bufferTask, stringDecoderTask } from "./impl-node";
 
 runBench({
   runtime: `node ${process.version.slice(1)}`,

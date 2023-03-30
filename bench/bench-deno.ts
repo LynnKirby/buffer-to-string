@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: 0BSD
 // SPDX-FileCopyrightText: 2023 Lynn Kirby
 
-import { fromCharCodeTask } from "./impl-fromcharcode";
-import { fromCharCodeApplyTasks } from "./impl-fromcharcode-apply";
-import { textDecoderTask } from "./impl-textdecoder";
-
 import { runBench } from "./common";
+
+import { fromCharCodeTask, fromCharCodeApplyTasks } from "./impl-fromcharcode";
+import { textDecoderTask } from "./impl-textdecoder";
 
 runBench({
   runtime: `deno ${Deno.version.deno}`,

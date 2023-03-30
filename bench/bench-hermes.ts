@@ -3,11 +3,9 @@
 
 import "./setup-hermes";
 import { stringLength } from "./setup-hermes-args.cjs";
-
-import { fromCharCodeTask } from "./impl-fromcharcode";
-import { fromCharCodeApplyTasks } from "./impl-fromcharcode-apply";
-
 import { runBench } from "./common";
+
+import { fromCharCodeTask, fromCharCodeApplyTasks } from "./impl-fromcharcode";
 
 const version = HermesInternal.getRuntimeProperties()["OSS Release Version"];
 const runtime = version ? `hermes ${version}` : "hermes";
