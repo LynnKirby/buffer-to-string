@@ -17,7 +17,7 @@ dotenv.config();
 const args = parseArgs({
   allowPositionals: true,
   options: {
-    "graal-home": { type: "string" },
+    "graalvm-home": { type: "string" },
     "deno-bin": { type: "string" },
     "hermes-bin": { type: "string" },
     "node-bin": { type: "string" },
@@ -28,7 +28,7 @@ const args = parseArgs({
 });
 
 const buildOptions = {
-  graalHome: args.values["graal-home"] ?? process.env["GRAAL_HOME"],
+  graalHome: args.values["graalvm-home"] ?? process.env["GRAALVM_HOME"],
   denoBin: args.values["deno-bin"] ?? process.env["DENO"] ?? "deno",
   hermesBin: args.values["hermes-bin"] ?? process.env["HERMES"] ?? "hermes",
   nodeBin: args.values["node-bin"] ?? process.env["NODE"] ?? process.execPath,
@@ -128,7 +128,7 @@ export const benchGraal = task({
   dependencies: [buildBenchGraal],
   async run() {
     if (!buildOptions.graalHome) {
-      throw new Error("GRAAL_HOME environment variable not set");
+      throw new Error("GRAALVM_HOME environment variable not set");
     }
 
     await execa(

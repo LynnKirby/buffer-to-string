@@ -36,8 +36,8 @@ Where `RUNTIME` is one of:
 ### GraalJS setup
 
 1. [Download](https://www.graalvm.org/downloads/) and extract the GraalVM JDK.
-2. Set the `GRAAL_HOME` environment variable to the GraalVM JDK directory.
-3. Install the Node.js component with `$GRAAL_HOME/bin/gu install nodejs`.
+2. Set the `GRAALVM_HOME` environment variable to the GraalVM JDK directory.
+3. Install the Node.js component with `$GRAALVM_HOME/bin/gu install nodejs`.
 4. Run with `hereby bench-graal`.
 
 ### Hermes setup
