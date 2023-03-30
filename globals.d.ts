@@ -10,7 +10,6 @@ declare namespace Deno {
     deno: string;
   };
   var args: string[];
-  function exit(code?: number): never;
 }
 
 //
@@ -19,6 +18,10 @@ declare namespace Deno {
 
 declare namespace Graal {
   var versionGraalVM: string;
+}
+
+declare namespace Java {
+  function type(typeName: string): any;
 }
 
 //
@@ -39,6 +42,3 @@ declare namespace HermesInternal {
 
 declare var scriptArgs: string[];
 
-declare module "std" {
-  export function exit(code: number): never;
-}

@@ -133,7 +133,7 @@ export const benchGraal = task({
 
     await execa(
       path.join(buildOptions.graalHome, "bin/node"),
-      ["build/bench-graal.mjs", buildOptions.length],
+      ["--jvm", "build/bench-graal.mjs", buildOptions.length],
       { stdio: "inherit" },
     );
   },

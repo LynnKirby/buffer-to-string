@@ -6,6 +6,7 @@ import { runBench } from "./common";
 import { fromCharCodeTask, fromCharCodeApplyTasks } from "./impl-fromcharcode";
 import { textDecoderTask } from "./impl-textdecoder";
 import { bufferTask, stringDecoderTask } from "./impl-node";
+import { javaStringBuilderTask, javaNewStringTask } from "./impl-graal";
 
 runBench({
   runtime: `graaljs ${Graal.versionGraalVM}`,
@@ -16,5 +17,7 @@ runBench({
     textDecoderTask,
     stringDecoderTask,
     bufferTask,
+    javaNewStringTask,
+    javaStringBuilderTask,
   ],
 });
