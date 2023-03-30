@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: 0BSD
+# SPDX-FileCopyrightText: none
+
+node_modules
+build
+dist
+
+pnpm-lock.yaml

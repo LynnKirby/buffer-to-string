@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: 0BSD
+// SPDX-FileCopyrightText: none
+{
+  "include": ["./*", "src", "bench"],
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "es2020",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "checkJs": true,
+    "noEmit": true
+  }
+}
