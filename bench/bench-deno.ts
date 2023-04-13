@@ -5,9 +5,16 @@ import { runBench } from "./common";
 
 import { fromCharCodeTask, fromCharCodeApplyTasks } from "./impl-fromcharcode";
 import { textDecoderTask } from "./impl-textdecoder";
+import { bufferToStringTask } from "./impl-buffer-to-string";
 
 runBench({
   runtime: `deno ${Deno.version.deno}`,
   stringLength: Deno.args[0],
-  tasks: [fromCharCodeTask, ...fromCharCodeApplyTasks, textDecoderTask],
+  stringType: Deno.args[1],
+  tasks: [
+    fromCharCodeTask,
+    ...fromCharCodeApplyTasks,
+    textDecoderTask,
+    bufferToStringTask,
+  ],
 });

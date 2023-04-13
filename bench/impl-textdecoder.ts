@@ -13,4 +13,5 @@ export const textDecoderTask: TaskDefinition = {
   fn(source) {
     return decoder.decode(source);
   },
+  skipAll: true,
 };

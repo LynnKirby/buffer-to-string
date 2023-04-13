@@ -3,22 +3,26 @@
 
 import { Bench } from "tinybench";
 import type { Task, BenchEvent } from "tinybench";
+
 import { formatTime } from "./utils";
-import { fromCharCode } from "./impl-fromcharcode";
+import { bufferToString_fromCharCode } from "../src/impl-fromcharcode";
 
 export type TaskDefinition = {
   name: string;
   fn: (source: Uint16Array) => string;
+  skipAll?: boolean;
 };
 
 export type BenchOptions = {
   runtime: string;
   tasks: TaskDefinition[];
-  stringLength?: string | number;
+  stringLength: string | number | undefined;
+  stringType: string | undefined;
 };
 
 export async function runBench(options: BenchOptions) {
-  let stringLength = options.stringLength ?? 1000;
+  let stringLength = options.stringLength ?? 10_000;
+  let stringType = options.stringType ?? "bmp";
 
   if (typeof stringLength === "string") {
     stringLength = Number.parseInt(stringLength.replace(/[ \t,_]/g, ""));
@@ -29,11 +33,48 @@ export async function runBench(options: BenchOptions) {
   }
 
   const source = new Uint16Array(stringLength);
-  const expected = fromCharCode(source);
+
+  if (stringType === "zero") {
+    // Do nothing.
+  } else if (stringType === "bmp") {
+    let i = 0;
+    let codeUnit = 0;
+
+    while (i < source.length) {
+      source[i] = codeUnit;
+      i++;
+      codeUnit++;
+
+      if (codeUnit >= 0xd800) {
+        codeUnit = 0xc000;
+      } else if (codeUnit > 0xffff) {
+        codeUnit = 0;
+      }
+    }
+  } else if (stringType == "all") {
+    let i = 0;
+    let codeUnit = 0;
+
+    while (i < source.length) {
+      source[i] = codeUnit;
+      i++;
+      codeUnit++;
+
+      if (codeUnit > 0xffff) {
+        codeUnit = 0;
+      }
+    }
+  } else {
+    throw new Error("Invalid string type: " + stringType);
+  }
+
+  const expected = bufferToString_fromCharCode(source);
 
   const bench = new Bench();
 
   for (const task of options.tasks) {
+    if (stringType === "all" && task.skipAll) continue;
+
     let result: string | undefined = undefined;
 
     const fn = () => {
@@ -95,6 +136,7 @@ export async function runBench(options: BenchOptions) {
 
   console.log(`Runtime: ${options.runtime}`);
   console.log(`Length: ${stringLength}`);
+  console.log(`Type: ${stringType}`);
   console.log();
 
   await bench.warmup();

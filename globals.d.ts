@@ -41,4 +41,3 @@ declare namespace HermesInternal {
 //
 
 declare var scriptArgs: string[];
-

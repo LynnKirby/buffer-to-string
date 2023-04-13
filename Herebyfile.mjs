@@ -23,7 +23,7 @@ const args = parseArgs({
     "node-bin": { type: "string" },
     "quickjs-bin": { type: "string" },
     length: { type: "string" },
-    "skip-build": { type: "boolean" },
+    type: { type: "string" },
   },
 });
 
@@ -33,9 +33,41 @@ const buildOptions = {
   hermesBin: args.values["hermes-bin"] ?? process.env["HERMES"] ?? "hermes",
   nodeBin: args.values["node-bin"] ?? process.env["NODE"] ?? process.execPath,
   quickjsBin: args.values["quickjs-bin"] ?? process.env["QUICKJS"] ?? "qjs",
-  length: args.values["length"] ?? "1000",
-  skipBuild: args.values["skip-build"] ?? false,
+
+  stringLength: args.values["length"] ?? "10_000",
+  stringType: args.values["type"] ?? "bmp",
 };
+
+//=============================================================================
+// Build
+
+export const buildJS = task({
+  name: "build-js",
+  description: "Build JS bundle",
+  async run() {
+    await esbuild.build({
+      entryPoints: ["src/index.ts"],
+      bundle: true,
+      format: "esm",
+      target: "es2015",
+      outfile: "dist/buffer-to-string.mjs",
+    });
+
+    await esbuild.build({
+      entryPoints: ["src/index.ts"],
+      bundle: true,
+      format: "cjs",
+      target: "es2015",
+      outfile: "dist/buffer-to-string.cjs",
+    });
+  },
+});
+
+export const build = task({
+  name: "build",
+  description: "Build package",
+  dependencies: [buildJS],
+});
 
 //=============================================================================
 // Node benchmark
@@ -43,9 +75,8 @@ const buildOptions = {
 export const buildBenchNode = task({
   name: "build-bench-node",
   description: "Build Node.js benchmark harness",
+  dependencies: [buildJS],
   async run() {
-    if (buildOptions.skipBuild) return;
-
     await esbuild.build({
       entryPoints: ["bench/bench-node.ts"],
       bundle: true,
@@ -62,11 +93,15 @@ export const benchNode = task({
   description: "Run Node.js benchmarks",
   dependencies: [buildBenchNode],
   async run() {
-    await execaNode("build/bench-node.mjs", [buildOptions.length], {
-      preferLocal: true,
-      execPath: buildOptions.nodeBin,
-      stdio: "inherit",
-    });
+    await execaNode(
+      "build/bench-node.mjs",
+      [buildOptions.stringLength, buildOptions.stringType],
+      {
+        preferLocal: true,
+        execPath: buildOptions.nodeBin,
+        stdio: "inherit",
+      },
+    );
   },
 });
 
@@ -76,9 +111,8 @@ export const benchNode = task({
 export const buildBenchDeno = task({
   name: "build-bench-deno",
   description: "Build Deno benchmark harness",
+  dependencies: [buildJS],
   async run() {
-    if (buildOptions.skipBuild) return;
-
     await esbuild.build({
       entryPoints: ["bench/bench-deno.ts"],
       bundle: true,
@@ -96,8 +130,16 @@ export const benchDeno = task({
   async run() {
     await execa(
       buildOptions.denoBin,
-      ["run", "--allow-hrtime", "build/bench-deno.mjs", buildOptions.length],
-      { stdio: "inherit" },
+      [
+        "run",
+        "--allow-hrtime",
+        "build/bench-deno.mjs",
+        buildOptions.stringLength,
+        buildOptions.stringType,
+      ],
+      {
+        stdio: "inherit",
+      },
     );
   },
 });
@@ -108,9 +150,8 @@ export const benchDeno = task({
 export const buildBenchGraal = task({
   name: "build-bench-graal",
   description: "Build GraalJS benchmark harness",
+  dependencies: [buildJS],
   async run() {
-    if (buildOptions.skipBuild) return;
-
     await esbuild.build({
       entryPoints: ["bench/bench-graal.ts"],
       bundle: true,
@@ -133,8 +174,15 @@ export const benchGraal = task({
 
     await execa(
       path.join(buildOptions.graalHome, "bin/node"),
-      ["--jvm", "build/bench-graal.mjs", buildOptions.length],
-      { stdio: "inherit" },
+      [
+        "--jvm",
+        "build/bench-graal.mjs",
+        buildOptions.stringLength,
+        buildOptions.stringType,
+      ],
+      {
+        stdio: "inherit",
+      },
     );
   },
 });
@@ -145,9 +193,8 @@ export const benchGraal = task({
 export const buildBenchQuickJS = task({
   name: "build-bench-quickjs",
   description: "Build QuickJS benchmark harness",
+  dependencies: [buildJS],
   async run() {
-    if (buildOptions.skipBuild) return;
-
     await esbuild.build({
       entryPoints: ["bench/bench-quickjs.ts"],
       bundle: true,
@@ -165,7 +212,12 @@ export const benchQuickJS = task({
   async run() {
     await execa(
       buildOptions.quickjsBin,
-      ["--module", "build/bench-quickjs.mjs", buildOptions.length],
+      [
+        "--module",
+        "build/bench-quickjs.mjs",
+        buildOptions.stringLength,
+        buildOptions.stringType,
+      ],
       {
         stdio: "inherit",
       },
@@ -174,14 +226,13 @@ export const benchQuickJS = task({
 });
 
 //=============================================================================
-// Hermes (React Native) benchmark
+// Hermes benchmark
 
 export const buildBenchHermes = task({
   name: "build-bench-hermes",
   description: "Build Hermes benchmark harness",
+  dependencies: [buildJS],
   async run() {
-    if (buildOptions.skipBuild) return;
-
     const bundle = await esbuild.build({
       entryPoints: ["bench/bench-hermes.ts"],
       bundle: true,
@@ -222,7 +273,8 @@ export const benchHermes = task({
     // Hermes doesn't directly support command-line arguments so we need
     // this shim file.
     const code = `
-    exports.stringLength = ${JSON.stringify(buildOptions.length)};
+    exports.stringLength = ${JSON.stringify(buildOptions.stringLength)};
+    exports.stringType = ${JSON.stringify(buildOptions.stringType)};
     `;
     await fs.writeFile("build/setup-hermes-args.cjs", code);
 

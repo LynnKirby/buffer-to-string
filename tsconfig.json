@@ -9,6 +9,9 @@
     "esModuleInterop": true,
     "strict": true,
     "checkJs": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "buffer-to-string": ["./src/index.ts"]
+    }
   }
 }
